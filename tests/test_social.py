@@ -1,4 +1,3 @@
-import pytest
 
 from interfaces.social import Content
 
