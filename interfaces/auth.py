@@ -2,7 +2,7 @@ from typing import Protocol
 
 
 class Creds(Protocol):
-    def validate(self): ...
+    def validate(self) -> bool: ...
 
 
 class Auth(Protocol):
