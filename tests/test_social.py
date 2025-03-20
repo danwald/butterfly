@@ -1,5 +1,5 @@
-
 from interfaces.social import Content
+
 
 class SocialTestContent(Content):
     def __init__(self, data: str) -> None:
@@ -12,6 +12,4 @@ class SocialTester:
 
 
 def test_social():
-    assert SocialTester().post(
-        SocialTestContent('foobar')
-    )
+    assert SocialTester().post(SocialTestContent("foobar"))
