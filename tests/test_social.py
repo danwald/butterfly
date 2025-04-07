@@ -13,6 +13,7 @@ class SocialTester:
     def validate(self) -> bool:
         return True
 
+
 def test_social():
     assert SocialTester().post(SocialTestContent("foobar"))
     assert SocialTester().validate()
