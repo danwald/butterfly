@@ -1,4 +1,5 @@
-from typing import Protocol
+from dataclasses import dataclass
+from typing import Any, Protocol
 
 
 class Creds(Protocol):
@@ -6,4 +7,12 @@ class Creds(Protocol):
 
 
 class Auth(Protocol):
-    def authorize(self) -> bool: ...
+    def authorize(self, *args: tuple[Any]) -> bool: ...
+
+
+@dataclass
+class BearerAuth:
+    auth_header: dict[str, Any]
+
+    def authorize(self, *args: tuple[Any]) -> bool:
+        return True
