@@ -1,5 +1,9 @@
+from plugins import PluginManager
+
+
 def main() -> None:
-    print("Hello from butterfly!")
+    pm = PluginManager()
+    pm.discover_plugins()
 
 
 if __name__ == "__main__":
