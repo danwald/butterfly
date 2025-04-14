@@ -1,7 +1,4 @@
-from plugins import Plugin
-
-
-class HelloPlugin(Plugin):
+class HelloPlugin:
     def __init__(self):
         self.name = "hello"
 

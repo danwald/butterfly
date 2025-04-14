@@ -1,9 +1,7 @@
 from typing import Any
 
-from plugins import Plugin
 
-
-class Twitter(Plugin):
+class Twitter:
     def __init__(self) -> None:
         self.name = "twitter"
 
