@@ -10,7 +10,7 @@ class Plugin(Protocol):
 
 
 class PluginManager:
-    def __init__(self, plugin_dir: Path = Path("plugin")) -> None:
+    def __init__(self, plugin_dir: Path = Path("plugins")) -> None:
         self.plugin_dir = plugin_dir
         self.plugins: dict[str, Plugin] = {}
 
