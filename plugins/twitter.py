@@ -2,11 +2,11 @@ from typing import Any
 
 import requests
 
-from interfaces.auth import OAuth1
+from interfaces import auth
 
 
 class Twitter:
-    def __init__(self, auth: OAuth1) -> None:
+    def __init__(self, auth: auth.OAuth1 = auth.OAuth1()) -> None:
         self.name = "twitter"
         self.auth = auth
         self.api_base_url = "https://api.twitter.com/2"
@@ -52,3 +52,8 @@ class Twitter:
         except requests.RequestException as e:
             print(f"Request to Twitter API failed: {e}")
             return False
+
+    def authorize(self, *args: tuple[Any]) -> bool:
+        if self.auth:
+            return self.auth.authorize()
+        return False

@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import hmac
+import os
 import time
 import urllib.parse
 from dataclasses import dataclass
@@ -28,10 +29,10 @@ class OAuth1(AuthBase):
 
     def __init__(
         self,
-        consumer_key: str,
-        consumer_secret: str,
-        access_token: str,
-        access_token_secret: str,
+        consumer_key: str = os.environ.get("TWITTER_CONSUMER_KEY", ""),
+        consumer_secret: str = os.environ.get("TWITTER_CONSUMER_SECRET", ""),
+        access_token: str = os.environ.get("TWITTER_ACCESS_TOKEN", ""),
+        access_token_secret: str = os.environ.get("TWITTER_ACCESS_TOKEN_SECRET", ""),
     ):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
@@ -56,7 +57,7 @@ class OAuth1(AuthBase):
         base_url = f"{url_parts.scheme}://{url_parts.netloc}{url_parts.path}"
 
         # Extract and encode request parameters
-        params: dict[str, str] = {}
+        params: dict[str, str | None] = {}
         if url_parts.query:
             query_params = urllib.parse.parse_qsl(url_parts.query)
             params.update(query_params)
