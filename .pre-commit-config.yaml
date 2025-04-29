@@ -24,6 +24,8 @@ repos:
     -   id: mypy
         exclude: ^tests/
         args: [--strict]
+        additional_dependencies:
+          - "types-requests"
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
     rev: v0.11.0
