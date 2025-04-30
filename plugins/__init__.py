@@ -33,6 +33,9 @@ class PluginManager:
         except Exception as e:
             print(f"Error loading plugin module {module_file}: {e}")
 
+    def get_plugins(self) -> list[str]:
+        return list(self.plugins.keys())
+
     @staticmethod
     def get_full_module(module_file: Path, marker_file: str = "pyproject.toml") -> str:
         path = []
@@ -49,12 +52,16 @@ class PluginManager:
     def run_method(
         self, plugin_name: str, method: str, *args: tuple[Any], **kwargs: dict[str, Any]
     ) -> bool:
-        try:
-            plugin_method = getattr(self.plugins[plugin_name], method)
-            plugin_method(*args, **kwargs)
-            return True
-        except KeyError:
-            print(f"Plugin not found {plugin_name}")
-        except Exception as e:
-            print(f"Failed to execute {plugin_name}.{method}(): {e}")
-        return False
+        success = True
+        plugins = [plugin_name] if plugin_name else self.get_plugins()
+        for plugin in plugins:
+            try:
+                plugin_method = getattr(self.plugins[plugin], method)
+                plugin_method(*args, **kwargs)
+            except KeyError:
+                print(f"Plugin not found {plugin_name}")
+                success = False
+            except Exception as e:
+                print(f"Failed to execute {plugin_name}.{method}(): {e}")
+                success = False
+        return success

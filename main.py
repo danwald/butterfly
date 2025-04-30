@@ -12,8 +12,16 @@ def main() -> None:
     parser.add_argument(
         "--list-plugins", action="store_true", help="List available plugins and exit"
     )
-    parser.add_argument("--plugin", help="Specify plugin to use")
-    parser.add_argument("--method", help="Method to execute on the plugin")
+    parser.add_argument(
+        "--plugins",
+        nargs="*",
+        help="Specify plugin to use (all)",
+    )
+    parser.add_argument(
+        "--method",
+        help="Method to execute on the plugin",
+        choices=["validate", "execute"],
+    )
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
     args = parser.parse_args()
@@ -25,16 +33,14 @@ def main() -> None:
 
     pm.discover_plugins()
 
-    if args.list_plugins:
+    if not args.method or args.list_plugins:
         print("Available plugins:")
         for plugin_name in pm.plugins:
             print(f"  - {plugin_name}")
         return
 
-    if args.plugin and args.method:
-        success = pm.run_method(args.plugin, args.method)
-        if not success:
-            exit(1)
+    for plugin in args.plugins or [""]:
+        pm.run_method(plugin, args.method)
 
 
 if __name__ == "__main__":
