@@ -15,7 +15,7 @@ def manager():
 
 def test_plugin_manager(manager):
     manager.discover_plugins()
-    assert manager.run_method("hello", "execute", "arg1", key="value")
-    assert manager.run_method("hello", "validate", "arg1", key="value")
-    assert manager.run_method("hello", "doesnt_exist") is False
-    assert manager.run_method("doesnt_exist", "404") is False
+    assert manager._run_method("hello", "execute", "arg1", key="value")
+    assert manager._run_method("hello", "validate", "arg1", key="value")
+    assert manager._run_method("hello", "doesnt_exist") is False
+    assert manager._run_method("doesnt_exist", "404") is False

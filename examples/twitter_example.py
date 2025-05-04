@@ -22,7 +22,7 @@ def run_twitter_oauth_example() -> bool:
         return False
 
     # Now we can execute commands
-    result = twitter.get_user_info()
+    result = twitter.validate()
     print(f"Execute result: {result}")
     return True
 

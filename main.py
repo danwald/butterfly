@@ -22,6 +22,7 @@ def main() -> None:
         help="Method to execute on the plugin",
         choices=["validate", "execute"],
     )
+    parser.add_argument("--message", type=str, help="text content to post")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
     args = parser.parse_args()
@@ -40,7 +41,10 @@ def main() -> None:
         return
 
     for plugin in args.plugins or [""]:
-        pm.run_method(plugin, args.method)
+        if args.method == "execute" and not args.message:
+            print("You need to provide content to post")
+            break
+        pm._run_method(plugin, args.method, args.message)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,8 @@ from typing import Any, Protocol, runtime_checkable
 @runtime_checkable
 class Plugin(Protocol):
     def get_name(self) -> str: ...
+    def validate(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool: ...
+    def execute(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool: ...
 
 
 class PluginManager:
@@ -49,8 +51,12 @@ class PluginManager:
 
         return ".".join(reversed(path))
 
-    def run_method(
-        self, plugin_name: str, method: str, *args: tuple[Any], **kwargs: dict[str, Any]
+    def _run_method(
+        self,
+        plugin_name: str | None,
+        method: str,
+        *args: tuple[Any],
+        **kwargs: dict[str, Any],
     ) -> bool:
         success = True
         plugins = [plugin_name] if plugin_name else self.get_plugins()
