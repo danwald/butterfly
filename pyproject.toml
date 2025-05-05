@@ -1,9 +1,31 @@
 [project]
 name = "butterfly"
 version = "0.1.0"
-description = "Add your description here"
+description = "Allows you to post to your socials"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "requests>=2.32.3",
+]
+
+[project.scripts]
+butterfly = "main:main"
+
+[tool.setuptools]
+packages = [
+    "interfaces",
+    "plugins",
+]
+py-modules = ["main"]
+
+
+[tool.uv]
+default-groups = ["dev",]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "ruff>=0.11.0",
 ]
