@@ -28,13 +28,13 @@ pipx install .
 
 ```bash
 # List available plugins
-butterfly --list-plugins
+sbutterfly --list-plugins
 
 # Validate Twitter credentials
-butterfly --plugins twitter --method validate
+sbutterfly --plugins twitter --method validate
 
 # Post a message to Twitter
-butterfly --plugins twitter --method execute --message "Hello from Butterfly!"
+sbutterfly --plugins twitter --method execute --message "Hello from Butterfly!"
 ```
 
 ### Using as a Library
