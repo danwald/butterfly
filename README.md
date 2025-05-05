@@ -15,11 +15,11 @@ Requires Python 3.12+
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/butterfly.git
+git clone https://github.com/danwald/butterfly.git
 cd butterfly
 
 # Install dependencies
-pip install -e .
+pipx install .
 ```
 
 ## Usage
@@ -28,13 +28,13 @@ pip install -e .
 
 ```bash
 # List available plugins
-python main.py --list-plugins
+butterfly --list-plugins
 
 # Validate Twitter credentials
-python main.py --plugins twitter --method validate
+butterfly --plugins twitter --method validate
 
 # Post a message to Twitter
-python main.py --plugins twitter --method execute --message "Hello from Butterfly!"
+butterfly --plugins twitter --method execute --message "Hello from Butterfly!"
 ```
 
 ### Using as a Library
@@ -82,13 +82,9 @@ See `plugins/twitter.py` for an example implementation.
 uv pip install -e ".[dev]"
 
 # Run tests
-pytest
+make test
 
 # Run linting
-ruff check .
-mypy .
+make lint
+make type
 ```
-
-## License
-
-[Include your license information here]
