@@ -1,5 +1,5 @@
 [project]
-name = "butterfly"
+name = "sbutterfly"
 version = "0.1.0"
 description = "Allows you to post to your socials"
 readme = "README.md"
@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.scripts]
-butterfly = "main:main"
+sbutterfly = "main:main"
 
 [tool.setuptools]
 packages = [
