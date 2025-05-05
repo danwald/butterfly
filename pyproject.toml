@@ -8,6 +8,11 @@ dependencies = [
     "requests>=2.32.3",
 ]
 
+[tool.setuptools]
+packages = [
+    "interfaces",
+    "plugins",
+]
 
 
 [tool.uv]
