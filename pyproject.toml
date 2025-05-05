@@ -8,11 +8,15 @@ dependencies = [
     "requests>=2.32.3",
 ]
 
+[project.scripts]
+butterfly = "main:main"
+
 [tool.setuptools]
 packages = [
     "interfaces",
     "plugins",
 ]
+py-modules = ["main"]
 
 
 [tool.uv]
