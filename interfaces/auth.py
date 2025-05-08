@@ -21,6 +21,8 @@ class BearerAuth:
 
     @property
     def header(self) -> dict[str, str]:
+        if not self:
+            raise ValueError("Invalid BearerToken")
         return {self.key: f"Bearer: {self.access_token}"}
 
     def __bool__(self) -> bool:

@@ -28,4 +28,8 @@ def test_auth(auth):
 def test_bearer_auth(access_token, is_valid, header_output):
     bt = BearerAuth(access_token=access_token)
     assert bool(bt) == is_valid
-    assert bt.header == header_output
+    if not bt:
+        with pytest.raises(ValueError):
+            assert bt.header == header_output
+    else:
+        assert bt.header == header_output
