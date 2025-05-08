@@ -16,10 +16,15 @@ class Auth(Protocol):
 
 @dataclass
 class BearerAuth:
-    auth_header: dict[str, Any]
+    key: str = "Authorization"
+    access_token: str = ""
+
+    @property
+    def header(self) -> dict[str, str]:
+        return {self.key: f"Bearer: {self.access_token}"}
 
     def authorize(self, *args: tuple[Any]) -> bool:
-        return True
+        return bool(self.key and self.access_token)
 
 
 class OAuth1(AuthBase):
