@@ -1,12 +1,14 @@
 from typing import Any
 
+import os
 import requests
 
-from interfaces import auth
+from interfaces.auth import BearerAuth
 
 
 class Mastodon:
-    def __init__(self, auth: auth.BearerAuth) -> None:
+    def __init__(self,
+                 auth: BearerAuth = BearerAuth(access_token=os.environ.get('MASTODON_BEARER_TOKEN'))) -> None:
         self.name = "mastodon"
         self.auth = auth
         self.api_base_url = "https://techhub.social/api"
@@ -15,10 +17,9 @@ class Mastodon:
         return self.name
 
     def get_user_info(self) -> bool | Any:
-        endpoint = f"{self.api_base_url}/v1/accounts/lookup?acct=<username>"
-
+        endpoint = f"{self.api_base_url}/v1/accounts/verify_credentials"
         try:
-            response = requests.get(endpoint, headers=self.auth.auth_header, timeout=10)
+            response = requests.get("https://techhub.social/api/v1/accounts/verify_credentials", headers=self.auth.header, timeout=10)
 
             # Check if the request was successful
             if response.status_code == 200:
@@ -40,12 +41,10 @@ class Mastodon:
             return False
 
     def authorize(self, *args: tuple[Any]) -> bool:
-        if self.auth:
-            return self.auth.authorize()
-        return False
+        return self.auth
 
     def validate(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:
-        if not self.authorize():
+        if not self.auth:
             print("Invalid Credentials")
             return False
         return self.get_user_info()
@@ -56,7 +55,7 @@ class Mastodon:
         try:
             response = requests.post(
                 endpoint,
-                headers=self.auth.auth_header,
+                headers=self.auth.header,
                 data={"status": args[0]},
                 timeout=10,
             )
