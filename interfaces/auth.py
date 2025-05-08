@@ -23,7 +23,7 @@ class BearerAuth:
     def header(self) -> dict[str, str]:
         return {self.key: f"Bearer: {self.access_token}"}
 
-    def authorize(self, *args: tuple[Any]) -> bool:
+    def __bool__(self) -> bool:
         return bool(self.key and self.access_token)
 
 
