@@ -62,7 +62,7 @@ class Mastodon:
             )
 
             # Check if the request was successful
-            if response.status_code == 201:
+            if response.status_code == 200:
                 return True
             else:
                 error_msg = (
