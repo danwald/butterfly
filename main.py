@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 
 from plugins import PluginManager
+from utils import setup_logger
 
 
 def main() -> None:
@@ -27,22 +28,25 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    # Setup main logger
+    logger = setup_logger("butterfly", args.debug)
+
     if args.plugin_dir:
-        pm = PluginManager(plugin_dir=args.plugin_dir)
+        pm = PluginManager(plugin_dir=args.plugin_dir, debug=args.debug)
     else:
-        pm = PluginManager()
+        pm = PluginManager(debug=args.debug)
 
     pm.discover_plugins()
 
     if not args.method or args.list_plugins:
-        print("Available plugins:")
+        logger.info("Available plugins:")
         for plugin_name in pm.plugins:
-            print(f"  - {plugin_name}")
+            logger.info(f"  - {plugin_name}")
         return
 
     for plugin in args.plugins or [""]:
         if args.method == "execute" and not args.message:
-            print("You need to provide content to post")
+            logger.error("You need to provide content to post")
             break
         pm._run_method(plugin, args.method, args.message)
 

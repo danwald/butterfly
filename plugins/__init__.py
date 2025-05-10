@@ -1,7 +1,12 @@
 import importlib
 import inspect
+import logging
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
+
+from utils import setup_logger
+
+logger = setup_logger("plugins")
 
 
 @runtime_checkable
@@ -12,15 +17,17 @@ class Plugin(Protocol):
 
 
 class PluginManager:
-    def __init__(self, plugin_dir: Path = Path("plugins")) -> None:
+    def __init__(self, plugin_dir: Path = Path("plugins"), debug: bool = False) -> None:
         self.plugin_dir = plugin_dir
         self.plugins: dict[str, Plugin] = {}
+        self.debug = debug
+        self.logger = setup_logger("plugins", debug)
 
     def discover_plugins(self) -> None:
         for file_path in self.plugin_dir.glob("*.py"):
             if file_path.name != "__init__.py":
                 self._load_plugin(file_path)
-        print(f"Loaded {len(self.plugins)} plugins")
+        self.logger.info(f"Loaded {len(self.plugins)} plugins")
 
     def _load_plugin(self, module_file: Path) -> None:
         try:
@@ -28,12 +35,22 @@ class PluginManager:
             module = importlib.import_module(full_module)
             for _, klass in inspect.getmembers(module, inspect.isclass):
                 if issubclass(klass, Plugin):
-                    plugin_inst = klass()
+                    # Pass debug flag to plugin if it accepts it in __init__
+                    try:
+                        init_params = inspect.signature(klass.__init__).parameters
+                        if "debug" in init_params:
+                            plugin_inst = klass(debug=self.debug)
+                        else:
+                            plugin_inst = klass()
+                    except ValueError:
+                        # If __init__ is not inspectable, create without debug
+                        plugin_inst = klass()
+
                     plugin_name = plugin_inst.get_name()
                     self.plugins[plugin_name] = plugin_inst
-                    print(f"Loaded plugin: {plugin_name}")
+                    self.logger.info(f"Loaded plugin: {plugin_name}")
         except Exception as e:
-            print(f"Error loading plugin module {module_file}: {e}")
+            self.logger.error(f"Error loading plugin module {module_file}: {e}")
 
     def get_plugins(self) -> list[str]:
         return list(self.plugins.keys())
@@ -65,9 +82,9 @@ class PluginManager:
                 plugin_method = getattr(self.plugins[plugin], method)
                 plugin_method(*args, **kwargs)
             except KeyError:
-                print(f"Plugin not found {plugin_name}")
+                self.logger.error(f"Plugin not found {plugin_name}")
                 success = False
             except Exception as e:
-                print(f"Failed to execute {plugin_name}.{method}(): {e}")
+                self.logger.error(f"Failed to execute {plugin_name}.{method}(): {e}")
                 success = False
         return success

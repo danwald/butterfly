@@ -4,16 +4,19 @@ from typing import Any
 import requests
 
 from interfaces.auth import BearerAuth
+from utils import setup_logger
 
 
 class Mastodon:
     def __init__(
         self,
         auth: BearerAuth = BearerAuth(access_token=os.environ["MASTODON_BEARER_TOKEN"]),
+        debug: bool = False,
     ) -> None:
         self.name = "mastodon"
         self.auth = auth
         self.api_base_url = "https://techhub.social/api"
+        self.logger = setup_logger(f"plugins.{self.name}", debug)
 
     def get_name(self) -> str:
         return self.name
@@ -24,7 +27,7 @@ class Mastodon:
             response = requests.get(endpoint, headers=self.auth.header, timeout=10)
             # Check if the request was successful
             if response.status_code == 200:
-                print("Mastodon API connection successful!")
+                self.logger.info("Mastodon API connection successful!")
                 return response.json()
             else:
                 error_msg = (
@@ -32,13 +35,13 @@ class Mastodon:
                     .get("errors", [{}])[0]
                     .get("message", "Unknown error")
                 )
-                print(
+                self.logger.error(
                     f"Mastodon API connection failed: {response.status_code} - {error_msg}"
                 )
                 return False
 
         except requests.RequestException as e:
-            print(f"Request to Mastodon API failed: {e}")
+            self.logger.error(f"Request to Mastodon API failed: {e}")
             return False
 
     def authorize(self, *args: tuple[Any]) -> bool:
@@ -46,7 +49,7 @@ class Mastodon:
 
     def validate(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:
         if not self.auth:
-            print("Invalid Credentials")
+            self.logger.error("Invalid Credentials")
             return False
         return self.get_user_info()
 
@@ -63,6 +66,7 @@ class Mastodon:
 
             # Check if the request was successful
             if response.status_code == 200:
+                self.logger.info("Successfully posted to Mastodon")
                 return True
             else:
                 error_msg = (
@@ -70,11 +74,11 @@ class Mastodon:
                     .get("errors", [{}])[0]
                     .get("message", "Unknown error")
                 )
-                print(
+                self.logger.error(
                     f"Mastodon API connection failed: {response.status_code} - {error_msg}"
                 )
                 return False
 
         except requests.RequestException as e:
-            print(f"Request to Mastodon API failed: {e}")
+            self.logger.error(f"Request to Mastodon API failed: {e}")
             return False

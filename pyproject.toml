@@ -16,7 +16,7 @@ packages = [
     "interfaces",
     "plugins",
 ]
-py-modules = ["main"]
+py-modules = ["main", "utils"]
 
 
 [tool.uv]
