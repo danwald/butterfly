@@ -7,7 +7,8 @@ A lightweight, extensible social media management tool.
 Butterfly is a Python framework for managing posts across multiple social media platforms through a unified interface. It uses a plugin-based architecture to support different social media services.
 
 Currently supported platforms:
-- Twitter (X)
+- Twitter
+- Mastodon
 
 ## Installation
 
@@ -18,7 +19,7 @@ Requires Python 3.12+
 git clone https://github.com/danwald/butterfly.git
 cd butterfly
 
-# Install dependencies
+# Install
 pipx install .
 ```
 
@@ -30,11 +31,15 @@ pipx install .
 # List available plugins
 sbutterfly --list-plugins
 
-# Validate Twitter credentials
+# Validate credentials
 sbutterfly --plugins twitter --method validate
+sbutterfly --plugins mastodon --method validate
+sbutterfly --method validate
 
-# Post a message to Twitter
+# Post a message
 sbutterfly --plugins twitter --method execute --message "Hello from Butterfly!"
+sbutterfly --plugins mastodon --method execute --message "Hello from Butterfly!"
+sbutterfly --method execute --message "Hello from Butterfly!"
 ```
 
 ### Using as a Library
@@ -55,12 +60,13 @@ if twitter.validate():
 
 Butterfly uses environment variables for authentication:
 
-### Twitter
+### Environment Variables
 ```
 TWITTER_CONSUMER_KEY
 TWITTER_CONSUMER_SECRET
 TWITTER_ACCESS_TOKEN
 TWITTER_ACCESS_TOKEN_SECRET
+MASTODON_BEARER_TOKEN
 ```
 
 ## Extending Butterfly
