@@ -20,9 +20,9 @@ def test_auth(auth):
 @pytest.mark.parametrize(
     "access_token,is_valid,header_output",
     (
-        ("", False, {"Authorization": "Bearer: "}),
-        (None, False, {"Authorization": "Bearer: None"}),
-        ("foobar", True, {"Authorization": "Bearer: foobar"}),
+        ("", False, {"Authorization": "Bearer "}),
+        (None, False, {"Authorization": "Bearer None"}),
+        ("foobar", True, {"Authorization": "Bearer foobar"}),
     ),
 )
 def test_bearer_auth(access_token, is_valid, header_output):

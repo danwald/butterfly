@@ -1,14 +1,16 @@
+import os
 from typing import Any
 
-import os
 import requests
 
 from interfaces.auth import BearerAuth
 
 
 class Mastodon:
-    def __init__(self,
-                 auth: BearerAuth = BearerAuth(access_token=os.environ.get('MASTODON_BEARER_TOKEN'))) -> None:
+    def __init__(
+        self,
+        auth: BearerAuth = BearerAuth(access_token=os.environ["MASTODON_BEARER_TOKEN"]),
+    ) -> None:
         self.name = "mastodon"
         self.auth = auth
         self.api_base_url = "https://techhub.social/api"
@@ -19,8 +21,7 @@ class Mastodon:
     def get_user_info(self) -> bool | Any:
         endpoint = f"{self.api_base_url}/v1/accounts/verify_credentials"
         try:
-            response = requests.get("https://techhub.social/api/v1/accounts/verify_credentials", headers=self.auth.header, timeout=10)
-
+            response = requests.get(endpoint, headers=self.auth.header, timeout=10)
             # Check if the request was successful
             if response.status_code == 200:
                 print("Mastodon API connection successful!")
@@ -41,7 +42,7 @@ class Mastodon:
             return False
 
     def authorize(self, *args: tuple[Any]) -> bool:
-        return self.auth
+        return bool(self.auth)
 
     def validate(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:
         if not self.auth:
