@@ -7,11 +7,23 @@ import urllib.parse
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from atproto_client import Client  # type: ignore
 from requests.auth import AuthBase
 
 
 class Auth(Protocol):
     def authorize(self, *args: tuple[Any]) -> bool: ...
+
+
+@dataclass
+class UsernameAuth:
+    username: str
+    password: str
+
+    def get_client(self) -> Client:
+        self.client = Client()
+        self.client.client_login(self.username, self.password)
+        return self.client()
 
 
 @dataclass
