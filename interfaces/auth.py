@@ -20,10 +20,13 @@ class UsernameAuth:
     username: str
     password: str
 
+
+class BlueSkyAuth(UsernameAuth):
     def get_client(self) -> Client:
-        self.client = Client()
-        self.client.client_login(self.username, self.password)
-        return self.client()
+        if not hasattr(self, "client"):
+            self.client = Client()
+            _ = self.client.login(self.username, self.password)
+        return self.client
 
 
 @dataclass

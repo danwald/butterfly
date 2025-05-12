@@ -1,13 +1,16 @@
 import os
+import re
 from typing import Any
 
-from interfaces.auth import UsernameAuth
+from atproto import client_utils  # type: ignore
+
+from interfaces.auth import BlueSkyAuth
 
 
 class BlueSky:
     def __init__(
         self,
-        auth: UsernameAuth = UsernameAuth(
+        auth: BlueSkyAuth = BlueSkyAuth(
             username=os.environ["BSKY_USERNAME"], password=os.environ["BSKY_PASSWORD"]
         ),
     ) -> None:
@@ -24,11 +27,35 @@ class BlueSky:
         if not self.authorize():
             print("Invalid Credentials")
             return False
-        _ = self.auth.get_client()
         return True
 
     def execute(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:
         if not self.authorize():
             print("Invalid Credentials")
             return False
+        if not args and args[0]:
+            print("Invalid Text")
+            return False
+
+        text = str(args[0])
+        text, urls = self.extract_urls(text)
+        builder = client_utils.TextBuilder()
+        builder.text(text)
+        for url in urls:
+            builder.link(url, url)
+
+        client = self.auth.get_client()
+        client.send_post(builder)
         return True
+
+    def extract_urls(self, text: str) -> tuple[str, list[str]]:
+        # Regular expression pattern for matching URLs
+        url_pattern = r"https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+"
+
+        # Find all URLs in the text
+        urls = re.findall(url_pattern, text)
+
+        # Remove all URLs from the text
+        text_without_urls = re.sub(url_pattern, "", text)
+
+        return text_without_urls, urls
