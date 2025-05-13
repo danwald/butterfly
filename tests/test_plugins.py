@@ -18,3 +18,9 @@ def test_plugin_manager(manager):
     assert manager._run_method("hello", "validate", "arg1", key="value")
     assert manager._run_method("hello", "doesnt_exist") is False
     assert manager._run_method("doesnt_exist", "404") is False
+
+
+def test_supported_plugins():
+    supported_plugins = PluginManager().discover_plugins()
+    for plugin in supported_plugins.get_plugins():
+        assert supported_plugins._run_method(plugin, "get_name")
