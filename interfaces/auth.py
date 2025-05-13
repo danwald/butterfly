@@ -2,9 +2,11 @@ import base64
 import hashlib
 import hmac
 import os
+import shelve
 import time
 import urllib.parse
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Protocol
 
 from atproto_client import Client  # type: ignore
@@ -22,11 +24,36 @@ class UsernameAuth:
 
 
 class BlueSkyAuth(UsernameAuth):
+    def __init__(self, *args: tuple[str, str], **kwargs: dict[str, Any]):
+        self.session_filename = str(kwargs.pop("session_filename", ".bsky_session"))
+        self.stale_seconds = int(kwargs.get("stale_seconds") or 5 * 60)  # type: ignore
+        super().__init__(*args)  # type: ignore
+
     def get_client(self) -> Client:
-        if not hasattr(self, "client"):
-            self.client = Client()
-            _ = self.client.login(self.username, self.password)
-        return self.client
+        client = Client()
+        if session := self.get_session():
+            client.login(session_string=session)
+        else:
+            client.login(self.username, self.password)
+            self.save_session(client.export_session_string)
+        return client
+
+    def get_session(self) -> str | None:
+        session_file = Path(self.session_filename)
+        if session_file.exists():
+            if (
+                int(abs(time.time() - session_file.stat().st_mtime))
+                < self.stale_seconds
+            ):
+                with shelve.open(session_file) as db:
+                    return db.get(str(hash(self)))
+            else:
+                session_file.unlink()
+        return None
+
+    def save_session(self, session: str) -> None:
+        with shelve.open(self.session_filename, writeback=True) as db:
+            db[str(hash(self))] = session
 
 
 @dataclass
