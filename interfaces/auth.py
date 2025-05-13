@@ -24,10 +24,16 @@ class UsernameAuth:
 
 
 class BlueSkyAuth(UsernameAuth):
-    def __init__(self, *args: tuple[str, str], **kwargs: dict[str, Any]):
-        self.session_filename = str(kwargs.pop("session_filename", ".bsky_session"))
-        self.stale_seconds = int(kwargs.get("stale_seconds") or 5 * 60)  # type: ignore
-        super().__init__(*args)  # type: ignore
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        session_filename: str = ".bsky_session",
+        stale_seconds: int = 5 * 60,
+    ):
+        self.session_filename = session_filename
+        self.stale_seconds = stale_seconds
+        super().__init__(username, password)
 
     def get_client(self) -> Client:
         client = Client()
