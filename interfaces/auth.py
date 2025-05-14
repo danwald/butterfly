@@ -23,7 +23,29 @@ class UsernameAuth:
     password: str
 
 
-class BlueSkyAuth(UsernameAuth):
+class SessionCacheMixin:
+    session_filename: str
+    stale_seconds: int
+
+    def get_session(self) -> str | None:
+        session_file = Path(self.session_filename)
+        if session_file.exists():
+            if (
+                int(abs(time.time() - session_file.stat().st_mtime))
+                < self.stale_seconds
+            ):
+                with shelve.open(session_file) as db:
+                    return db.get(str(hash(self)))
+            else:
+                session_file.unlink()
+        return None
+
+    def save_session(self, session: str) -> None:
+        with shelve.open(self.session_filename, writeback=True) as db:
+            db[str(hash(self))] = session
+
+
+class BlueSkyAuth(UsernameAuth, SessionCacheMixin):
     def __init__(
         self,
         username: str,
@@ -43,23 +65,6 @@ class BlueSkyAuth(UsernameAuth):
             client.login(self.username, self.password)
             self.save_session(client.export_session_string)
         return client
-
-    def get_session(self) -> str | None:
-        session_file = Path(self.session_filename)
-        if session_file.exists():
-            if (
-                int(abs(time.time() - session_file.stat().st_mtime))
-                < self.stale_seconds
-            ):
-                with shelve.open(session_file) as db:
-                    return db.get(str(hash(self)))
-            else:
-                session_file.unlink()
-        return None
-
-    def save_session(self, session: str) -> None:
-        with shelve.open(self.session_filename, writeback=True) as db:
-            db[str(hash(self))] = session
 
 
 @dataclass
