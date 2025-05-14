@@ -1,6 +1,9 @@
+import os
+from pathlib import Path
+
 import pytest
 
-from interfaces.auth import BearerAuth
+from interfaces.auth import BearerAuth, SessionCacheMixin
 
 
 class GrantedAuth:
@@ -15,6 +18,18 @@ def auth():
 
 def test_auth(auth):
     assert auth.authorize()
+
+
+@pytest.fixture(scope="function")
+def fake_session_cache():
+    fname, secs = ".test-bs-session", 10
+
+    class FSCache(SessionCacheMixin):
+        def __init__(self):
+            self.session_filename, self.stale_seconds = fname, secs
+
+    yield FSCache()
+    Path(fname).unlink(missing_ok=True)
 
 
 @pytest.mark.parametrize(
@@ -33,3 +48,40 @@ def test_bearer_auth(access_token, is_valid, header_output):
             assert bt.header == header_output
     else:
         assert bt.header == header_output
+
+
+def test_session_cache_retervial(fake_session_cache):
+    assert not fake_session_cache.get_session()
+    fake_session_cache.save_session("foobar")
+    assert fake_session_cache.get_session() == "foobar"
+    fake_session_cache.save_session("barfoo")
+    assert fake_session_cache.get_session() != "foobar"
+    assert fake_session_cache.get_session() == "barfoo"
+
+
+def update_file_mod_time(path: Path, secs: int) -> None:
+    mod_time = path.stat().st_mtime
+    os.utime(path, (mod_time + secs, mod_time + secs))
+
+
+def test_session_cache_file(fake_session_cache):
+    session_path = Path(fake_session_cache.session_filename)
+    assert not session_path.exists()
+    fake_session_cache.save_session("foobar")
+    assert fake_session_cache.get_session() == "foobar"
+    assert session_path.exists()
+
+
+def test_session_cache_stale_file(fake_session_cache):
+    session_path = Path(fake_session_cache.session_filename)
+    fake_session_cache.save_session("foobar")
+    assert fake_session_cache.get_session() == "foobar"
+    assert session_path.exists()
+
+    update_file_mod_time(session_path, fake_session_cache.stale_seconds)
+    assert fake_session_cache.get_session() == "foobar"
+    assert session_path.exists()
+
+    update_file_mod_time(session_path, -1 * fake_session_cache.stale_seconds)
+    assert not fake_session_cache.get_session()
+    assert not session_path.exists()
