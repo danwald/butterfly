@@ -42,7 +42,7 @@ class SessionCacheMixin:
 
     def save_session(self, session: str) -> None:
         with shelve.open(self.session_filename, writeback=True) as db:
-            db[str(hash(self))] = session
+            db[str(super().__hash__())] = session
 
 
 class BlueSkyAuth(UsernameAuth, SessionCacheMixin):

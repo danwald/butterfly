@@ -28,6 +28,9 @@ def fake_session_cache():
         def __init__(self):
             self.session_filename, self.stale_seconds = fname, secs
 
+        def __hash__(self):
+            return hash(f"{self.session_filename}{self.stale_seconds}")
+
     yield FSCache()
     Path(fname).unlink(missing_ok=True)
 
