@@ -22,14 +22,20 @@ def test_auth(auth):
 
 @pytest.fixture(scope="function")
 def fake_session_cache():
-    fname, secs = ".test-bs-session", 10
+    fname, secs = ".test-bs-session", 200
 
     class FSCache(SessionCacheMixin):
         def __init__(self):
             self.session_filename, self.stale_seconds = fname, secs
 
         def __hash__(self):
-            return hash(f"{self.session_filename}{self.stale_seconds}")
+            return hash((self.session_filename, self.stale_seconds))
+
+        def __eq__(self, obj):
+            return (
+                obj.session_filename == self.session_filename
+                and obj.stale_seconds == self.stale_seconds
+            )
 
     yield FSCache()
     Path(fname).unlink(missing_ok=True)

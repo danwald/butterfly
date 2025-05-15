@@ -30,19 +30,16 @@ class SessionCacheMixin:
     def get_session(self) -> str | None:
         session_file = Path(self.session_filename)
         if session_file.exists():
-            if (
-                int(abs(time.time() - session_file.stat().st_mtime))
-                < self.stale_seconds
-            ):
+            if int(time.time() - session_file.stat().st_mtime) < self.stale_seconds:
                 with shelve.open(session_file) as db:
                     return db.get(str(hash(self)))
             else:
-                session_file.unlink()
+                session_file.unlink(missing_ok=True)
         return None
 
     def save_session(self, session: str) -> None:
         with shelve.open(self.session_filename, writeback=True) as db:
-            db[str(super().__hash__())] = session
+            db[str(hash(self))] = session
 
 
 class BlueSkyAuth(UsernameAuth, SessionCacheMixin):
