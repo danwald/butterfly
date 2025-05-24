@@ -7,7 +7,7 @@ import time
 import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, Self
 
 from atproto_client import Client  # type: ignore
 from requests.auth import AuthBase
@@ -24,8 +24,8 @@ class UsernameAuth:
 
 
 class SessionCacheMixin:
-    session_filename: str
-    stale_seconds: int
+    session_filename: str = ".bsky_session"
+    stale_seconds: int = 5 * 60
 
     def get_session(self) -> str | None:
         session_file = Path(self.session_filename)
@@ -41,17 +41,25 @@ class SessionCacheMixin:
         with shelve.open(self.session_filename, writeback=True) as db:
             db[str(hash(self))] = session
 
+    def _override_defaults(self, fname: str, secs: int) -> Self:
+        self.session_filename, self.stale_seconds = fname, secs
+        return self
+
+    def __hash__(self) -> int:
+        return hash("".join(map(str, vars(self).values())))
+
+    def __eq__(self, obj: object) -> bool:
+        if isinstance(obj, type(self)):
+            raise NotImplementedError()
+        return all(getattr(self, att) == getattr(obj, att) for att in vars(self).keys())
+
 
 class BlueSkyAuth(UsernameAuth, SessionCacheMixin):
     def __init__(
         self,
         username: str,
         password: str,
-        session_filename: str = ".bsky_session",
-        stale_seconds: int = 5 * 60,
     ):
-        self.session_filename = session_filename
-        self.stale_seconds = stale_seconds
         super().__init__(username, password)
 
     def get_client(self) -> Client:
