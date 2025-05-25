@@ -47,7 +47,7 @@ class SessionCacheMixin:
         return None
 
     def save_session(self, session: str) -> None:
-        with shelve.open(self.session_filename, writeback=True) as db:
+        with shelve.open(self.session_filename) as db:
             db[str(hash(self))] = session
 
     def _override_defaults(self, fname: str, secs: int) -> Self:
@@ -69,7 +69,7 @@ class BlueSkyAuth(UsernameAuth, HashableMixin, SessionCacheMixin):
             client.login(session_string=session)
         else:
             client.login(self.username, self.password)
-            self.save_session(client.export_session_string)
+            self.save_session(client.export_session_string())
         return client
 
 
