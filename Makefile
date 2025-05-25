@@ -1,6 +1,6 @@
 .PHONY: test type lint clean
 
-test:
+test: type lint
 	uv run pytest tests
 
 type:
