@@ -9,6 +9,7 @@ Butterfly is a Python framework for managing posts across multiple social media 
 Currently supported platforms:
 - Twitter
 - Mastodon
+- BlueSky
 
 ## Installation
 
@@ -32,13 +33,13 @@ pipx install .
 sbutterfly --list-plugins
 
 # Validate credentials
-sbutterfly --plugins twitter --method validate
-sbutterfly --plugins mastodon --method validate
 sbutterfly --method validate
 
 # Post a message
 sbutterfly --plugins twitter --method execute --message "Hello from Butterfly!"
 sbutterfly --plugins mastodon --method execute --message "Hello from Butterfly!"
+sbutterfly --plugins bluesky --method execute --message "Hello from Butterfly!"
+# or
 sbutterfly --method execute --message "Hello from Butterfly!"
 ```
 
@@ -67,6 +68,8 @@ TWITTER_CONSUMER_SECRET
 TWITTER_ACCESS_TOKEN
 TWITTER_ACCESS_TOKEN_SECRET
 MASTODON_BEARER_TOKEN
+BSKY_USERNAME
+BSKY_PASSWORD
 ```
 
 ## Extending Butterfly

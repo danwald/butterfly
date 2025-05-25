@@ -1,6 +1,6 @@
 [project]
 name = "sbutterfly"
-version = "1.1.0"
+version = "1.2.0"
 description = "Allows you to post to your socials"
 readme = "README.md"
 requires-python = ">=3.12"
