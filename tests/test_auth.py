@@ -22,7 +22,7 @@ def test_auth(auth):
 
 @pytest.fixture(scope="function")
 def fake_session_cache():
-    fname = ".test-bs-session"
+    fname = ".test-session"
     secs = 200
 
     class FSCache(HashableMixin, SessionCacheMixin):
@@ -91,3 +91,7 @@ def test_session_cache_stale_file(fake_session_cache):
 def test_bluesky_hashable():
     ba = BlueSkyAuth("foo", "bar")
     assert hash(ba)
+
+    ba.save_session("hello")
+    assert ba.get_session() == "hello"
+    Path(ba.session_filename).unlink(missing_ok=True)
