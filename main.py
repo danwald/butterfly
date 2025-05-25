@@ -28,11 +28,9 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.plugin_dir:
-        pm = PluginManager(plugin_dir=args.plugin_dir)
+        pm = PluginManager(plugin_dir=args.plugin_dir).discover_plugins()
     else:
-        pm = PluginManager()
-
-    pm.discover_plugins()
+        pm = PluginManager().discover_plugins()
 
     if not args.method or args.list_plugins:
         print("Available plugins:")

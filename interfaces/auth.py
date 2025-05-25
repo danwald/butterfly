@@ -2,16 +2,75 @@ import base64
 import hashlib
 import hmac
 import os
+import shelve
 import time
 import urllib.parse
 from dataclasses import dataclass
-from typing import Any, Protocol
+from pathlib import Path
+from typing import Any, Protocol, Self
 
+from atproto_client import Client  # type: ignore
 from requests.auth import AuthBase
 
 
 class Auth(Protocol):
     def authorize(self, *args: tuple[Any]) -> bool: ...
+
+
+class UsernameAuth:
+    def __init__(self, username: str, password: str):
+        self.username, self.password = username, password
+
+
+class HashableMixin:
+    def __hash__(self) -> int:
+        return hash("".join(map(str, vars(self).values())))
+
+    def __eq__(self, obj: object) -> bool:
+        if isinstance(obj, type(self)):
+            raise TypeError()
+        return all(getattr(self, att) == getattr(obj, att) for att in vars(self).keys())
+
+
+class SessionCacheMixin:
+    session_filename: str = ".session"
+    stale_seconds: int = 5 * 60
+
+    def get_session(self) -> str | None:
+        session_file = Path(self.session_filename)
+        if session_file.exists():
+            if int(time.time() - session_file.stat().st_mtime) < self.stale_seconds:
+                with shelve.open(session_file) as db:
+                    return db.get(str(hash(self)))
+            else:
+                session_file.unlink(missing_ok=True)
+        return None
+
+    def save_session(self, session: str) -> None:
+        with shelve.open(self.session_filename) as db:
+            db[str(hash(self))] = session
+
+    def _override_defaults(self, fname: str, secs: int) -> Self:
+        self.session_filename, self.stale_seconds = fname, secs
+        return self
+
+
+class BlueSkyAuth(UsernameAuth, HashableMixin, SessionCacheMixin):
+    def __init__(
+        self,
+        username: str,
+        password: str,
+    ):
+        super().__init__(username, password)
+
+    def get_client(self) -> Client:
+        client = Client()
+        if session := self.get_session():
+            client.login(session_string=session)
+        else:
+            client.login(self.username, self.password)
+            self.save_session(client.export_session_string())
+        return client
 
 
 @dataclass

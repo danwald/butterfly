@@ -1,7 +1,7 @@
 import importlib
 import inspect
 from pathlib import Path
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Protocol, Self, runtime_checkable
 
 
 @runtime_checkable
@@ -16,11 +16,12 @@ class PluginManager:
         self.plugin_dir = plugin_dir
         self.plugins: dict[str, Plugin] = {}
 
-    def discover_plugins(self) -> None:
+    def discover_plugins(self) -> Self:
         for file_path in self.plugin_dir.glob("*.py"):
             if file_path.name != "__init__.py":
                 self._load_plugin(file_path)
         print(f"Loaded {len(self.plugins)} plugins")
+        return self
 
     def _load_plugin(self, module_file: Path) -> None:
         try:
