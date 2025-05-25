@@ -56,8 +56,8 @@ class PluginManager:
         self,
         plugin_name: str | None,
         method: str,
-        *args: tuple[Any],
-        **kwargs: dict[str, Any],
+        *args: Any,
+        **kwargs: Any,
     ) -> bool:
         success = True
         plugins = [plugin_name] if plugin_name else self.get_plugins()
