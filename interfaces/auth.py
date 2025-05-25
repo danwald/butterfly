@@ -33,7 +33,7 @@ class HashableMixin:
 
 
 class SessionCacheMixin:
-    session_filename: str = ".bsky_session"
+    session_filename: str = ".session"
     stale_seconds: int = 5 * 60
 
     def get_session(self) -> str | None:
