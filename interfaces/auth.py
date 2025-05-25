@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol, Self
 
-from atproto_client import Client  # type: ignore
+from atproto_client import Client
 from requests.auth import AuthBase
 
 

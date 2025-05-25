@@ -2,7 +2,7 @@ import os
 import re
 from typing import Any
 
-from atproto import client_utils  # type: ignore
+from atproto import client_utils
 
 from interfaces.auth import BlueSkyAuth
 
