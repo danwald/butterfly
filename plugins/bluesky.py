@@ -43,7 +43,6 @@ class BlueSky:
         builder.text(text)
         for url in urls:
             builder.link(url, url)
-
         client = self.auth.get_client()
         client.send_post(builder)
         return True

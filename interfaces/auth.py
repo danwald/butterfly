@@ -17,10 +17,19 @@ class Auth(Protocol):
     def authorize(self, *args: tuple[Any]) -> bool: ...
 
 
-@dataclass
 class UsernameAuth:
-    username: str
-    password: str
+    def __init__(self, username: str, password: str):
+        self.username, self.password = username, password
+
+
+class HashableMixin:
+    def __hash__(self) -> int:
+        return hash("".join(map(str, vars(self).values())))
+
+    def __eq__(self, obj: object) -> bool:
+        if isinstance(obj, type(self)):
+            raise TypeError()
+        return all(getattr(self, att) == getattr(obj, att) for att in vars(self).keys())
 
 
 class SessionCacheMixin:
@@ -45,16 +54,8 @@ class SessionCacheMixin:
         self.session_filename, self.stale_seconds = fname, secs
         return self
 
-    def __hash__(self) -> int:
-        return hash("".join(map(str, vars(self).values())))
 
-    def __eq__(self, obj: object) -> bool:
-        if isinstance(obj, type(self)):
-            raise NotImplementedError()
-        return all(getattr(self, att) == getattr(obj, att) for att in vars(self).keys())
-
-
-class BlueSkyAuth(UsernameAuth, SessionCacheMixin):
+class BlueSkyAuth(UsernameAuth, HashableMixin, SessionCacheMixin):
     def __init__(
         self,
         username: str,

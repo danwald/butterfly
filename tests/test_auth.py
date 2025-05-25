@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from interfaces.auth import BearerAuth, SessionCacheMixin
+from interfaces.auth import BearerAuth, BlueSkyAuth, HashableMixin, SessionCacheMixin
 
 
 class GrantedAuth:
@@ -25,7 +25,7 @@ def fake_session_cache():
     fname = ".test-bs-session"
     secs = 200
 
-    class FSCache(SessionCacheMixin):
+    class FSCache(HashableMixin, SessionCacheMixin):
         pass
 
     yield FSCache()._override_defaults(fname, secs)
@@ -86,3 +86,8 @@ def test_session_cache_stale_file(fake_session_cache):
     update_file_mod_time(session_path, -1 * fake_session_cache.stale_seconds)
     assert not fake_session_cache.get_session()
     assert not session_path.exists()
+
+
+def test_bluesky_hashable():
+    ba = BlueSkyAuth("foo", "bar")
+    assert hash(ba)
