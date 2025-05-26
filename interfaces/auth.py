@@ -6,7 +6,6 @@ import shelve
 import time
 import urllib.parse
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Protocol, Self
 
 from atproto_client import Client
@@ -35,20 +34,19 @@ class HashableMixin:
 class SessionCacheMixin:
     session_filename: str = ".session"
     stale_seconds: int = 5 * 60
+    UPDATED_AT = "UPDATED_AT"
 
     def get_session(self) -> str | None:
-        session_file = Path(self.session_filename)
-        if session_file.exists():
-            if int(time.time() - session_file.stat().st_mtime) < self.stale_seconds:
-                with shelve.open(session_file) as db:
-                    return db.get(str(hash(self)))
-            else:
-                session_file.unlink(missing_ok=True)
-        return None
+        with shelve.open(self.session_filename) as db:
+            last_update = db.get(self.UPDATED_AT, time.time())
+            if int(time.time() - last_update) < self.stale_seconds:
+                return None
+            return db.get(str(hash(self)))
 
     def save_session(self, session: str) -> None:
         with shelve.open(self.session_filename) as db:
             db[str(hash(self))] = session
+            db[self.UPDATED_AT] = time.time()
 
     def _override_defaults(self, fname: str, secs: int) -> Self:
         self.session_filename, self.stale_seconds = fname, secs
