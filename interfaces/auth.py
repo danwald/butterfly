@@ -52,6 +52,10 @@ class SessionCacheMixin:
         self.session_filename, self.stale_seconds = fname, secs
         return self
 
+    def _update_session_time(self, secs: int) -> None:
+        with shelve.open(self.session_filename) as db:
+            db[self.UPDATED_AT] = secs
+
 
 class BlueSkyAuth(UsernameAuth, HashableMixin, SessionCacheMixin):
     def __init__(
