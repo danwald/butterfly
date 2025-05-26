@@ -1,13 +1,13 @@
 .PHONY: test type lint clean
 
-test:
+test: type lint
 	uv run pytest tests
 
 type:
 	uv run mypy */*.py *.py
 
 lint:
-	pre-commit run --all-files
+	uv run pre-commit run --all-files
 	uv run ruff check
 
 clean:

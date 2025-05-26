@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Generator, Self
 
 import pytest
 
@@ -7,26 +8,27 @@ from interfaces.auth import BearerAuth, BlueSkyAuth, HashableMixin, SessionCache
 
 
 class GrantedAuth:
-    def authorize(self) -> bool:
+    def authorize(self: Self) -> bool:
         return True
 
 
 @pytest.fixture
-def auth():
+def auth() -> GrantedAuth:
     return GrantedAuth()
 
 
-def test_auth(auth):
+def test_auth(auth: GrantedAuth) -> None:
     assert auth.authorize()
 
 
+class FSCache(HashableMixin, SessionCacheMixin):
+    pass
+
+
 @pytest.fixture(scope="function")
-def fake_session_cache():
+def fake_session_cache() -> Generator[FSCache, None, None]:
     fname = ".test-session"
     secs = 200
-
-    class FSCache(HashableMixin, SessionCacheMixin):
-        pass
 
     yield FSCache()._override_defaults(fname, secs)
 
@@ -41,7 +43,9 @@ def fake_session_cache():
         ("foobar", True, {"Authorization": "Bearer foobar"}),
     ),
 )
-def test_bearer_auth(access_token, is_valid, header_output):
+def test_bearer_auth(
+    access_token: str, is_valid: bool, header_output: dict[str, str]
+) -> None:
     bt = BearerAuth(access_token=access_token)
     assert bool(bt) == is_valid
     if not bt:
@@ -51,7 +55,7 @@ def test_bearer_auth(access_token, is_valid, header_output):
         assert bt.header == header_output
 
 
-def test_session_cache_retervial(fake_session_cache):
+def test_session_cache_retervial(fake_session_cache: FSCache) -> None:
     assert not fake_session_cache.get_session()
     fake_session_cache.save_session("foobar")
     assert fake_session_cache.get_session() == "foobar"
@@ -65,7 +69,7 @@ def update_file_mod_time(path: Path, secs: int) -> None:
     os.utime(path, (mod_time + secs, mod_time + secs))
 
 
-def test_session_cache_file(fake_session_cache):
+def test_session_cache_file(fake_session_cache: FSCache) -> None:
     session_path = Path(fake_session_cache.session_filename)
     assert not session_path.exists()
     fake_session_cache.save_session("foobar")
@@ -73,7 +77,7 @@ def test_session_cache_file(fake_session_cache):
     assert session_path.exists()
 
 
-def test_session_cache_stale_file(fake_session_cache):
+def test_session_cache_stale_file(fake_session_cache: FSCache) -> None:
     session_path = Path(fake_session_cache.session_filename)
     fake_session_cache.save_session("foobar")
     assert fake_session_cache.get_session() == "foobar"
@@ -88,7 +92,7 @@ def test_session_cache_stale_file(fake_session_cache):
     assert not session_path.exists()
 
 
-def test_bluesky_hashable():
+def test_bluesky_hashable() -> None:
     ba = BlueSkyAuth("foo", "bar")
     assert hash(ba)
 
