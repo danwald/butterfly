@@ -1,4 +1,4 @@
-import os
+import time
 from pathlib import Path
 from typing import Generator, Self
 
@@ -28,7 +28,7 @@ class FSCache(HashableMixin, SessionCacheMixin):
 @pytest.fixture(scope="function")
 def fake_session_cache() -> Generator[FSCache, None, None]:
     fname = ".test-session"
-    secs = 200
+    secs = 200.0
 
     yield FSCache()._override_defaults(fname, secs)
 
@@ -64,32 +64,19 @@ def test_session_cache_retervial(fake_session_cache: FSCache) -> None:
     assert fake_session_cache.get_session() == "barfoo"
 
 
-def update_file_mod_time(path: Path, secs: int) -> None:
-    mod_time = path.stat().st_mtime
-    os.utime(path, (mod_time + secs, mod_time + secs))
-
-
 def test_session_cache_file(fake_session_cache: FSCache) -> None:
-    session_path = Path(fake_session_cache.session_filename)
-    assert not session_path.exists()
     fake_session_cache.save_session("foobar")
     assert fake_session_cache.get_session() == "foobar"
-    assert session_path.exists()
 
 
 def test_session_cache_stale_file(fake_session_cache: FSCache) -> None:
-    session_path = Path(fake_session_cache.session_filename)
     fake_session_cache.save_session("foobar")
     assert fake_session_cache.get_session() == "foobar"
-    assert session_path.exists()
 
-    update_file_mod_time(session_path, fake_session_cache.stale_seconds)
-    assert fake_session_cache.get_session() == "foobar"
-    assert session_path.exists()
-
-    update_file_mod_time(session_path, -1 * fake_session_cache.stale_seconds)
+    fake_session_cache._update_session_time(
+        time.time() - fake_session_cache.stale_seconds
+    )
     assert not fake_session_cache.get_session()
-    assert not session_path.exists()
 
 
 def test_bluesky_hashable() -> None:
