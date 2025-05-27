@@ -28,7 +28,7 @@ class FSCache(HashableMixin, SessionCacheMixin):
 @pytest.fixture(scope="function")
 def fake_session_cache() -> Generator[FSCache, None, None]:
     fname = ".test-session"
-    secs = 200
+    secs = 200.0
 
     yield FSCache()._override_defaults(fname, secs)
 
@@ -74,7 +74,7 @@ def test_session_cache_stale_file(fake_session_cache: FSCache) -> None:
     assert fake_session_cache.get_session() == "foobar"
 
     fake_session_cache._update_session_time(
-        int(time.time() - fake_session_cache.stale_seconds)
+        time.time() - fake_session_cache.stale_seconds
     )
     assert not fake_session_cache.get_session()
 

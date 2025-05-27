@@ -33,13 +33,13 @@ class HashableMixin:
 
 class SessionCacheMixin:
     session_filename: str = ".session"
-    stale_seconds: int = 5 * 60
+    stale_seconds: float = 5 * 60.0
     UPDATED_AT = "UPDATED_AT"
 
     def get_session(self) -> str | None:
         with shelve.open(self.session_filename) as db:
             last_update = db.get(self.UPDATED_AT, time.time())
-            if int(time.time() - last_update) > self.stale_seconds:
+            if (time.time() - last_update) > self.stale_seconds:
                 return None
             return db.get(str(hash(self)))
 
@@ -48,11 +48,11 @@ class SessionCacheMixin:
             db[str(hash(self))] = session
             db[self.UPDATED_AT] = time.time()
 
-    def _override_defaults(self, fname: str, secs: int) -> Self:
+    def _override_defaults(self, fname: str, secs: float) -> Self:
         self.session_filename, self.stale_seconds = fname, secs
         return self
 
-    def _update_session_time(self, secs: int) -> None:
+    def _update_session_time(self, secs: float) -> None:
         with shelve.open(self.session_filename) as db:
             db[self.UPDATED_AT] = secs
 
