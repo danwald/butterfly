@@ -39,7 +39,7 @@ class SessionCacheMixin:
     def get_session(self) -> str | None:
         with shelve.open(self.session_filename) as db:
             last_update = db.get(self.UPDATED_AT, time.time())
-            if int(time.time() - last_update) < self.stale_seconds:
+            if int(time.time() - last_update) > self.stale_seconds:
                 return None
             return db.get(str(hash(self)))
 
