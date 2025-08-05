@@ -8,7 +8,7 @@ import urllib.parse
 from dataclasses import dataclass
 from typing import Any, Protocol, Self
 
-from atproto_client import Client
+from atproto import Client
 from requests.auth import AuthBase
 
 
