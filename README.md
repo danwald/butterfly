@@ -13,15 +13,10 @@ Currently supported platforms:
 
 ## Installation
 
-Requires Python 3.12+
+Requires Python 3.12+ & uv/pipx
 
 ```bash
-# Clone the repository
-git clone https://github.com/danwald/butterfly.git
-cd butterfly
-
-# Install
-pipx install .
+uv tool install sbutterfly
 ```
 
 ## Usage
@@ -41,20 +36,6 @@ sbutterfly --plugins mastodon --method execute --message "Hello from Butterfly!"
 sbutterfly --plugins bluesky --method execute --message "Hello from Butterfly!"
 # or
 sbutterfly --method execute --message "Hello from Butterfly!"
-```
-
-### Using as a Library
-
-```python
-from plugins.twitter import Twitter
-
-# Create a Twitter plugin instance
-twitter = Twitter()
-
-# Validate credentials
-if twitter.validate():
-    # Post a message
-    twitter.execute("Hello from Butterfly!")
 ```
 
 ## Configuration
@@ -85,10 +66,12 @@ To create a new social media plugin:
 See `plugins/twitter.py` for an example implementation.
 
 ## Development
-
 ```bash
+git clone https://github.com/danwald/butterfly.git
+cd butterfly
+
 # Install development dependencies
-uv pip install -e ".[dev]"
+uv sync
 
 # Run tests
 make test
@@ -96,6 +79,20 @@ make test
 # Run linting
 make lint
 make type
+```
+
+### Using as a Library
+
+```python
+from plugins.twitter import Twitter
+
+# Create a Twitter plugin instance
+twitter = Twitter()
+
+# Validate credentials
+if twitter.validate():
+    # Post a message
+    twitter.execute("Hello from Butterfly!")
 ```
 
 ## Todo
