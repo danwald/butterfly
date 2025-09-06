@@ -26,11 +26,7 @@ def main() -> None:
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
     args = parser.parse_args()
-
-    if args.plugin_dir:
-        pm = PluginManager(plugin_dir=args.plugin_dir).discover_plugins()
-    else:
-        pm = PluginManager().discover_plugins()
+    pm = PluginManager(plugin_dir=args.plugin_dir or None).discover_plugins()
 
     if not args.method or args.list_plugins:
         print("Available plugins:")

@@ -12,8 +12,12 @@ class Plugin(Protocol):
 
 
 class PluginManager:
-    def __init__(self, plugin_dir: Path = Path("plugins")) -> None:
-        self.plugin_dir = plugin_dir
+    def __init__(self, plugin_dir: Path | None = None) -> None:
+        if plugin_dir is None:
+            # Get the directory where this __init__.py file is located
+            self.plugin_dir = Path(__file__).parent
+        else:
+            self.plugin_dir = plugin_dir
         self.plugins: dict[str, Plugin] = {}
 
     def discover_plugins(self) -> Self:
