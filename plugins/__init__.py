@@ -29,7 +29,16 @@ class PluginManager:
 
     def _load_plugin(self, module_file: Path) -> None:
         try:
-            full_module = self.get_full_module(module_file)
+            # Check if we're in a development environment or installed package
+            if (
+                self.plugin_dir.name == "plugins"
+                and (self.plugin_dir.parent / "pyproject.toml").exists()
+            ):
+                # Development mode - use full module path resolution
+                full_module = self.get_full_module(module_file)
+            else:
+                # Installed package mode - use relative import from plugins package
+                full_module = f"plugins.{module_file.stem}"
             module = importlib.import_module(full_module)
             for _, klass in inspect.getmembers(module, inspect.isclass):
                 if issubclass(klass, Plugin):
