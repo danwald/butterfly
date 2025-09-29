@@ -1,4 +1,5 @@
 import importlib
+import importlib.util
 import inspect
 from pathlib import Path
 from typing import Any, Protocol, Self, runtime_checkable
@@ -29,17 +30,13 @@ class PluginManager:
 
     def _load_plugin(self, module_file: Path) -> None:
         try:
-            # Check if we're in a development environment or installed package
-            if (
-                self.plugin_dir.name == "plugins"
-                and (self.plugin_dir.parent / "pyproject.toml").exists()
-            ):
-                # Development mode - use full module path resolution
-                full_module = self.get_full_module(module_file)
-            else:
-                # Installed package mode - use relative import from plugins package
-                full_module = f"plugins.{module_file.stem}"
-            module = importlib.import_module(full_module)
+            # Use importlib.util to load module directly from file path
+            spec = importlib.util.spec_from_file_location(module_file.stem, module_file)
+            if spec is None or spec.loader is None:
+                raise ImportError(f"Cannot create spec for {module_file}")
+
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
             for _, klass in inspect.getmembers(module, inspect.isclass):
                 if issubclass(klass, Plugin):
                     plugin_inst = klass()
