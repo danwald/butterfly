@@ -1,6 +1,6 @@
 import pytest
 
-from utils import extract_urls
+from src.utils import extract_urls
 
 
 @pytest.mark.parametrize(

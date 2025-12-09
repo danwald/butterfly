@@ -764,7 +764,7 @@ wheels = [
 [[package]]
 name = "sbutterfly"
 version = "1.2.5"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "atproto" },
     { name = "requests" },

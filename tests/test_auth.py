@@ -4,7 +4,7 @@ from typing import Generator, Self
 
 import pytest
 
-from interfaces.auth import BearerAuth, BlueSkyAuth, HashableMixin, SessionCacheMixin
+from src.interfaces.auth import BearerAuth, BlueSkyAuth, HashableMixin, SessionCacheMixin
 
 
 class GrantedAuth:
