@@ -171,3 +171,5 @@ cython_debug/
 .pypirc
 
 **/.claude/settings.local.json
+
+.session
