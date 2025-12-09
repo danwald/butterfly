@@ -24,4 +24,6 @@ def extract_urls(text: str) -> tuple[str, list[tuple[str, str]]]:
     # Remove all URLs from the text
     text_without_urls = re.sub(url_pattern, "", text)
 
-    return text_without_urls, [(urlsplit(url).path, url) for url in urls]
+    return text_without_urls, [
+        (urlsplit(url).path or str(idx), url) for idx, url in enumerate(urls)
+    ]

@@ -16,7 +16,7 @@ from src.utils import extract_urls
         (
             "Visit https://example.com and http://test.org/foobar",
             "Visit  and ",
-            [("", "https://example.com"), ("/foobar", "http://test.org/foobar")],
+            [("0", "https://example.com"), ("/foobar", "http://test.org/foobar")],
         ),
         # No URLs
         (
