@@ -18,7 +18,9 @@ def main() -> None:
         help="Specify plugin to use (all)",
     )
     parser.add_argument(
-        "--execute", action="store_true", help="Execute the plugin (default is validate)"
+        "--execute",
+        action="store_true",
+        help="Execute the plugin (default is validate)",
     )
     parser.add_argument("--message", type=str, help="text content to post")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")

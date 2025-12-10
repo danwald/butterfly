@@ -44,12 +44,12 @@ class Twitter:
             print(f"Request to Twitter API failed: {e}")
             return False
 
-    def authorize(self, *args: tuple[Any]) -> bool:
+    def authorize(self, *_: tuple[Any]) -> bool:
         if self.auth:
-            return self.auth.authorize()
+            return bool(self.auth.authorize())
         return False
 
-    def validate(self, *args: tuple[Any], **kwargs: dict[str, Any]) -> bool:
+    def validate(self, *_: tuple[Any], **kwargs: dict[str, Any]) -> bool:
         if not self.authorize():
             print("Invalid Credentials")
             return False

@@ -26,7 +26,9 @@ from src.utils import extract_urls
         ),
     ],
 )
-def test_extract_urls(input_text, expected_text, expected_urls):
+def test_extract_urls(
+    input_text: str, expected_text: str, expected_urls: list[tuple[str, str]]
+) -> None:
     """Test extract_urls function with various input scenarios."""
     text_without_urls, urls = extract_urls(input_text)
     assert text_without_urls == expected_text
