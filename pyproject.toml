@@ -1,36 +1,37 @@
 [project]
 name = "sbutterfly"
-version = "1.2.5"
+version = "2.0.0"
 description = "Allows you to post to your socials"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "atproto>=0.0.61",
-    "requests>=2.32.3",
-]
+dependencies = ["atproto>=0.0.61", "requests>=2.32.3"]
 
 [project.scripts]
 sbutterfly = "main:main"
 
 [tool.setuptools]
-packages = [
-    "interfaces",
-    "plugins",
-]
-py-modules = ["main"]
+package-dir = { "" = "src" }
+py-modules = ["main", "utils"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
 
 [tool.uv]
-default-groups = ["dev",]
+default-groups = ["dev"]
 
 [dependency-groups]
 dev = [
-    "mypy>=1.15.0",
-    "pip>=25.1.1",
-    "pre-commit>=4.2.0",
-    "pytest>=8.3.5",
-    "ruff>=0.11.0",
-    "uv>=0.7.8",
+  "mypy>=1.15.0",
+  "pip>=25.1.1",
+  "pre-commit>=4.2.0",
+  "pytest>=8.3.5",
+  "ruff>=0.11.0",
+  "uv>=0.7.8",
 ]
 
 [tool.mypy]

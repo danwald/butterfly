@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from plugins import PluginManager
+from src.plugins import PluginManager
 
 
 @pytest.fixture

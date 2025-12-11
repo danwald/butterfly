@@ -18,9 +18,9 @@ def main() -> None:
         help="Specify plugin to use (all)",
     )
     parser.add_argument(
-        "--method",
-        help="Method to execute on the plugin",
-        choices=["validate", "execute"],
+        "--execute",
+        action="store_true",
+        help="Execute the plugin (default is validate)",
     )
     parser.add_argument("--message", type=str, help="text content to post")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
@@ -28,17 +28,20 @@ def main() -> None:
     args = parser.parse_args()
     pm = PluginManager(plugin_dir=args.plugin_dir or None).discover_plugins()
 
-    if not args.method or args.list_plugins:
+    if args.list_plugins:
         print("Available plugins:")
         for plugin_name in pm.plugins:
             print(f"  - {plugin_name}")
         return
 
+    # Default to "validate", use "execute" if --execute flag is set
+    method = "execute" if args.execute else "validate"
+
     for plugin in args.plugins or [""]:
-        if args.method == "execute" and not args.message:
+        if method == "execute" and not args.message:
             print("You need to provide content to post")
             break
-        pm._run_method(plugin, args.method, args.message)
+        pm._run_method(plugin, method, args.message)
 
 
 if __name__ == "__main__":

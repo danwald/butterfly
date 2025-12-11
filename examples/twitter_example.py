@@ -6,7 +6,7 @@ from pathlib import Path
 # Add the parent directory to the path so we can import the modules
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from plugins.twitter import Twitter
+from src.plugins.twitter import Twitter
 
 
 def run_twitter_oauth_example() -> bool:

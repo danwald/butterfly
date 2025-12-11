@@ -27,15 +27,19 @@ uv tool install sbutterfly
 # List available plugins
 sbutterfly --list-plugins
 
-# Validate credentials
-sbutterfly --method validate
+# Validate credentials (default behavior)
+sbutterfly --plugins twitter
+sbutterfly --plugins mastodon
+sbutterfly --plugins bluesky
+# or validate all plugins
+sbutterfly
 
-# Post a message
-sbutterfly --plugins twitter --method execute --message "Hello from Butterfly!"
-sbutterfly --plugins mastodon --method execute --message "Hello from Butterfly!"
-sbutterfly --plugins bluesky --method execute --message "Hello from Butterfly!"
-# or
-sbutterfly --method execute --message "Hello from Butterfly!"
+# Post a message (use --execute flag)
+sbutterfly --plugins twitter --execute --message "Hello from Butterfly!"
+sbutterfly --plugins mastodon --execute --message "Hello from Butterfly!"
+sbutterfly --plugins bluesky --execute --message "Hello from Butterfly!"
+# or post to all platforms
+sbutterfly --execute --message "Hello from Butterfly!"
 ```
 
 ## Configuration
@@ -84,7 +88,7 @@ make type
 ### Using as a Library
 
 ```python
-from plugins.twitter import Twitter
+from src.plugins.twitter import Twitter
 
 # Create a Twitter plugin instance
 twitter = Twitter()
