@@ -815,18 +815,18 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "atproto", specifier = ">=0.0.61" },
-    { name = "requests", specifier = ">=2.32.3" },
+    { name = "atproto" },
+    { name = "requests" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "mypy", specifier = ">=1.15.0" },
-    { name = "pip", specifier = ">=25.1.1" },
-    { name = "pre-commit", specifier = ">=4.2.0" },
-    { name = "pytest", specifier = ">=8.3.5" },
-    { name = "ruff", specifier = ">=0.11.0" },
-    { name = "uv", specifier = ">=0.7.8" },
+    { name = "mypy" },
+    { name = "pip" },
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "ruff" },
+    { name = "uv" },
 ]
 
 [[package]]
