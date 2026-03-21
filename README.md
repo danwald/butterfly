@@ -74,15 +74,18 @@ See `plugins/twitter.py` for an example implementation.
 git clone https://github.com/danwald/butterfly.git
 cd butterfly
 
-# Install development dependencies
+# Install development dependencies (including dev group)
 uv sync
 
 # Run tests
-make test
+uv run pytest tests
+
+# Run type checking
+uv run mypy src tests
 
 # Run linting
-make lint
-make type
+uv run pre-commit run --all-files
+uv run ruff check
 ```
 
 ### Using as a Library
