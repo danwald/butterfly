@@ -67,21 +67,41 @@ jobs:
           git add pyproject.toml
           git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
 
-      - name: Push changes
+      - name: Push changes to release branch
         if: steps.commit_check.outputs.should_release == 'true'
         run: |
-          git push origin main
+          BRANCH="release/v${{ steps.bump_version.outputs.new_version }}"
+          git push origin HEAD:refs/heads/$BRANCH
 
   publish-release:
-    name: Create GitHub Release
+    name: Create PR and Release
     needs: check-and-release
     if: needs.check-and-release.outputs.should_release == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          fetch-depth: 0
+
+      - name: Create and merge PR for version bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="release/v${{ needs.check-and-release.outputs.new_version }}"
+
+          # Create PR
+          PR=$(gh pr create --base main --head "$BRANCH" \
+            --title "chore: bump version to ${{ needs.check-and-release.outputs.new_version }}" \
+            --body "Automatic version bump from scheduled release." \
+            --auto-merge --merge \
+            --auto-merge-method merge 2>&1 || echo "")
+
+          # Wait for PR to be merged
+          sleep 5
 
       - name: Create Release
         env:
