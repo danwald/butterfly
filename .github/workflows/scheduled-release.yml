@@ -23,6 +23,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LAST_TAG" ]; then
