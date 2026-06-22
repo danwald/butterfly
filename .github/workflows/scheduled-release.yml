@@ -7,16 +7,11 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 jobs:
-  check-and-release:
-    name: Check commits and bump version
+  release:
+    name: Check commits and create release
     runs-on: ubuntu-latest
-    outputs:
-      should_release: ${{ steps.commit_check.outputs.should_release }}
-      new_version: ${{ steps.bump_version.outputs.new_version }}
-      commit_count: ${{ steps.commit_check.outputs.commit_count }}
 
     steps:
       - name: Checkout code
@@ -24,89 +19,50 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-
-      - name: Check for commits since last release
-        id: commit_check
+      - name: Check for commits and create tag
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LAST_TAG" ]; then
             COMMITS=1
-            SHOULD_RELEASE="true"
           else
             COMMITS=$(git rev-list ${LAST_TAG}..HEAD --count 2>/dev/null || echo "0")
-            if [ "$COMMITS" -gt "0" ]; then
-              SHOULD_RELEASE="true"
-            else
-              SHOULD_RELEASE="false"
-            fi
           fi
 
-          echo "commit_count=$COMMITS" >> $GITHUB_OUTPUT
-          echo "should_release=$SHOULD_RELEASE" >> $GITHUB_OUTPUT
           echo "Last tag: $LAST_TAG"
           echo "Commits since: $COMMITS"
 
-      - name: Bump version (minor)
-        if: steps.commit_check.outputs.should_release == 'true'
-        id: bump_version
-        run: |
-          CURRENT_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\([^"]*\)"/\1/')
-          uv version --bump minor
-          NEW_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\([^"]*\)"/\1/')
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Bumped from $CURRENT_VERSION to $NEW_VERSION"
+          if [ "$COMMITS" -gt "0" ]; then
+            # Parse current version from last tag (e.g., v2.3.2 -> 2.3.2)
+            if [ -z "$LAST_TAG" ]; then
+              MAJOR=0
+              MINOR=1
+              PATCH=0
+            else
+              VERSION=${LAST_TAG#v}
+              MAJOR=$(echo $VERSION | cut -d. -f1)
+              MINOR=$(echo $VERSION | cut -d. -f2)
+              PATCH=$(echo $VERSION | cut -d. -f3)
+              # Bump minor version (reset patch to 0)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            fi
 
-      - name: Commit version bump
-        if: steps.commit_check.outputs.should_release == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add pyproject.toml
-          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }}"
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            NEW_TAG="v$NEW_VERSION"
 
-      - name: Push changes to release branch
-        if: steps.commit_check.outputs.should_release == 'true'
-        run: |
-          BRANCH="release/v${{ steps.bump_version.outputs.new_version }}"
-          git push origin HEAD:refs/heads/$BRANCH
+            echo "Creating tag: $NEW_TAG"
 
-  publish-release:
-    name: Create PR and Release
-    needs: check-and-release
-    if: needs.check-and-release.outputs.should_release == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
+            # Create and push tag
+            git tag $NEW_TAG -m "Release $NEW_TAG"
+            git push origin $NEW_TAG
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create and merge PR for version bump
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          BRANCH="release/v${{ needs.check-and-release.outputs.new_version }}"
-
-          # Create PR
-          PR=$(gh pr create --base main --head "$BRANCH" \
-            --title "chore: bump version to ${{ needs.check-and-release.outputs.new_version }}" \
-            --body "Automatic version bump from scheduled release." \
-            --auto-merge --merge \
-            --auto-merge-method merge 2>&1 || echo "")
-
-          # Wait for PR to be merged
-          sleep 5
-
-      - name: Create Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create v${{ needs.check-and-release.outputs.new_version }} \
-            --title "v${{ needs.check-and-release.outputs.new_version }}" \
-            --notes "Release of version ${{ needs.check-and-release.outputs.new_version }} with ${{ needs.check-and-release.outputs.commit_count }} commit(s)."
+            # Create release
+            gh release create $NEW_TAG \
+              --title "$NEW_TAG" \
+              --notes "Release with $COMMITS commit(s) since $LAST_TAG"
+          else
+            echo "No commits since last release, skipping."
+          fi
